@@ -1,6 +1,6 @@
 package com.starnet.musicmanager.common;
 
-import com.starnet.musicmanager.common.Exception.MyException;
+import com.starnet.musicmanager.common.exception.MyException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ExceptionHandler;

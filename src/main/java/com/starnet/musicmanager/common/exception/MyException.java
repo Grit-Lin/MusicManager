@@ -1,4 +1,4 @@
-package com.starnet.musicmanager.common.Exception;
+package com.starnet.musicmanager.common.exception;
 
 /**
  * @author:
