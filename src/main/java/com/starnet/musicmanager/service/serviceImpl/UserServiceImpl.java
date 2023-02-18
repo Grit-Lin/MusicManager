@@ -19,15 +19,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             @Autowired
             UserMapper userMapper;
 
-            public boolean login(String username, String hashedPwd){
+            public Long login(String username, String hashedPwd){
                 QueryWrapper wrapper=new QueryWrapper();
                 wrapper.eq("username",username);
                 wrapper.eq("hashed_pwd",hashedPwd);
                 User user=this.userMapper.selectOne(wrapper);
                 if(user!=null) {
-                    return true;
+                    return user.getId();
                 }else{
-                    return false;
+                    return null;
                 }
             }
+
+
 }

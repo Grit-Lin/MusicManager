@@ -1,9 +1,13 @@
 package com.starnet.musicmanager.config;
 
+import com.starnet.musicmanager.common.AuthInterceptor;
 import com.starnet.musicmanager.common.JacksonObjectMapper;
+
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 
 import java.util.List;
@@ -28,6 +32,16 @@ public class SpringMVCConfig extends WebMvcConfigurationSupport {
         messageConverter.setObjectMapper(new JacksonObjectMapper());
         //将创建的转换器放在mvc的转换器列表中，并且为了保证我们自定义的消息转换器能生效，我们得要设置转换器在最前位(即index=0)。
         converters.add(0, messageConverter);
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry interceptorRegistry){
+        interceptorRegistry.addInterceptor(authInterceptor()).
+                addPathPatterns("/**");
+    }
+    @Bean
+    public AuthInterceptor authInterceptor(){
+        return new AuthInterceptor();
     }
 
 }

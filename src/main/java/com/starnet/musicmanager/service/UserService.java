@@ -8,5 +8,5 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public interface UserService extends IService<User> {
 
-    public boolean login(String username, String hashedPwd);
+    public Long login(String username, String hashedPwd);
 }
