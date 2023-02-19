@@ -1,18 +1,13 @@
 package com.starnet.musicmanager.common;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTDecodeException;
-import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.starnet.musicmanager.entity.User;
+import com.starnet.musicmanager.common.exception.TokenNotFoundException;
 import com.starnet.musicmanager.service.serviceImpl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
@@ -30,51 +25,32 @@ public class AuthInterceptor implements HandlerInterceptor {
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
     }
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
-                             Object object) throws Exception{
+                             Object object) {
 
 
-        if(!(object instanceof HandlerMethod)){
+        if (!(object instanceof HandlerMethod)) {
             return true;
         }
-        HandlerMethod handlerMethod=(HandlerMethod)  object;
-        Method method=handlerMethod.getMethod();
-        if(method.isAnnotationPresent(VerifyToken.class)){
-            VerifyToken userLoginToken=method.getAnnotation(VerifyToken.class);
-            if(userLoginToken.required()){
-                Cookie[] cookies = request.getCookies();
-                String token=null;
-                for(Cookie c:cookies){
-                    if(c.getName().equals("token")){
-                        token=c.getValue();
-                        break;
-                    }
-                }
+        if (HttpMethod.OPTIONS.toString().equals(request.getMethod())) {
+            response.setStatus(HttpServletResponse.SC_OK);
+            return true;
+        }
 
-                if(token==null){
-                    throw new RuntimeException("没有token");
-                }
-                String userId;
-                try{
-                    userId= JWT.decode(token).getAudience().get(0);
+        HandlerMethod handlerMethod = (HandlerMethod) object;
+        Method method = handlerMethod.getMethod();
 
-                }catch (JWTDecodeException e){
-                    throw new RuntimeException("token非法");
-                }
-                System.out.println(userService);
-                User user=userService.getById(userId);
-
-                JWTVerifier jwtVerifier=JWT.require(Algorithm.HMAC256(user.getHashedPwd())).build();
-                try{
-                    jwtVerifier.verify(token);
-                }catch(JWTVerificationException e){
-                    throw new RuntimeException("token异常");
-                }
-                return true;
+        if (method.isAnnotationPresent(VerifyToken.class)) {
+//            VerifyToken userLoginToken=method.getAnnotation(VerifyToken.class);
+            final String token = request.getHeader(TokenUtil.AUTH_HEADER_KEY);
+            if (token == null) {
+                throw new TokenNotFoundException("header auth field not found");
             }
+            TokenContext ctx = TokenUtil.verify(token);
+            request.setAttribute("ctx", ctx);
         }
         return true;
     }
-
 }
