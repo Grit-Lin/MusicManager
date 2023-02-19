@@ -5,6 +5,7 @@ import com.starnet.musicmanager.common.R;
 import com.starnet.musicmanager.entity.Music;
 import com.starnet.musicmanager.service.serviceImpl.MusicServiceImpl;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.List;
  * @description
  */
 @RestController
+@RequestMapping("/music")
 public class MusicController {
 
     private MusicServiceImpl musicService;

@@ -31,4 +31,10 @@ public class GlobalExceptionHandler {
         log.error(exception.getMessage());
         return R.error(exception.getMessage());
     }
+
+    @ExceptionHandler(NullPointerException.class)
+    public R<String> exceptionHandler(NullPointerException exception) {
+        log.error(exception.getMessage());
+        return R.error("查询失败，数据不存在！");
+    }
 }
