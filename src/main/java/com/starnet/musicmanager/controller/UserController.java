@@ -23,11 +23,6 @@ import java.io.Serializable;
 public class UserController {
     private final UserServiceImpl userService;
 
-    private static class LoginReq implements Serializable {
-        private String username;
-        private String password;
-    }
-
     @GetMapping("/login")
     public R<String> login(String username, String password) {
         User user = this.userService.login(username, password);
