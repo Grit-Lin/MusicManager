@@ -3,20 +3,20 @@ package com.starnet.musicmanager.controller;
 import com.starnet.musicmanager.common.R;
 import com.starnet.musicmanager.common.TokenUtil;
 import com.starnet.musicmanager.common.VerifyToken;
-import com.starnet.musicmanager.service.UserService;
+import com.starnet.musicmanager.entity.User;
 import com.starnet.musicmanager.service.serviceImpl.UserServiceImpl;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.Serializable;
-import java.nio.charset.StandardCharsets;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,27 +27,31 @@ public class UserController {
         private String username;
         private String password;
     }
+
     @GetMapping("/login")
-    public R<?> login(String username, String hashedPwd) {
-        Boolean res = this.userService.login(username, DigestUtils.md5DigestAsHex(hashedPwd.getBytes(StandardCharsets.UTF_8)));
-        if (res != null) {
-            HttpSession session = request.getSession();
-            session.setAttribute("username", username);
-            Cookie cookie = new Cookie("token", TokenUtil.getToken(res.toString(), DigestUtils.md5DigestAsHex(hashedPwd.getBytes(StandardCharsets.UTF_8))));
-            response.addCookie(cookie);
-            return R.success("成功");
-        } else {
-            return R.error("用户名或者密码错误");
-        }
+    public R<String> login(String username, String password) {
+        User user = this.userService.login(username, password);
+        return R.success(TokenUtil.getToken(user.getId()));
     }
 
-    @VerifyToken
-    @GetMapping("/logout")
-    public R<?> logout(HttpServletRequest request, HttpServletResponse response) {
-        Cookie cookie = new Cookie("token", "");
-        cookie.setMaxAge(0);
-        response.addCookie(cookie);
-        request.getSession().invalidate();
-        return R.success("退出成功");
+    @PostMapping("/user")
+    public R<RegisterResp> register(@RequestBody RegisterReq req) {
+        User user = this.userService.register(req.getUsername(), req.getPassword());
+        String token = TokenUtil.getToken(user.getId());
+        return R.success(new RegisterResp(user, token));
     }
+}
+
+@Data
+class RegisterReq implements Serializable {
+    private String username;
+    private String password;
+}
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+class RegisterResp implements Serializable {
+    private User user;
+    private String token;
 }
