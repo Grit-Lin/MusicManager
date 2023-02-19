@@ -1,11 +1,13 @@
 package com.starnet.musicmanager.service.serviceImpl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.conditions.query.QueryChainWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.starnet.musicmanager.common.R;
+import com.starnet.musicmanager.common.AuthUtil;
 import com.starnet.musicmanager.entity.User;
 import com.starnet.musicmanager.mapper.UserMapper;
 import com.starnet.musicmanager.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,21 +17,14 @@ import org.springframework.stereotype.Service;
  * @description
  */
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
-            @Autowired
-            UserMapper userMapper;
+    private final UserMapper userMapper;
 
-            public Long login(String username, String hashedPwd){
-                QueryWrapper wrapper=new QueryWrapper();
-                wrapper.eq("username",username);
-                wrapper.eq("hashed_pwd",hashedPwd);
-                User user=this.userMapper.selectOne(wrapper);
-                if(user!=null) {
-                    return user.getId();
-                }else{
-                    return null;
-                }
-            }
-
-
+    public Boolean login(String username, String password) {
+        QueryWrapper<User> wrapper = new QueryWrapper<User>().eq("username", username);
+        User user = this.userMapper.selectOne(wrapper);
+        if (user == null) return false;
+        return AuthUtil.Verify(password, user.getHashedPwd());
+    }
 }
