@@ -19,3 +19,6 @@ mybatis-plus:
     db-config:
       #自动生成ID
       id-type: ASSIGN_ID
+
+musicManager:
+  basePath: ./static/image/
