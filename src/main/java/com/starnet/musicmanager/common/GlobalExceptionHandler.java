@@ -37,4 +37,10 @@ public class GlobalExceptionHandler {
         log.error(exception.getMessage());
         return R.error("查询失败，数据不存在！");
     }
+
+    @ExceptionHandler(RuntimeException.class)
+    public R<String> exceptionHandler(RuntimeException exception) {
+        log.error(exception.getMessage());
+        return R.error(exception.getMessage());
+    }
 }

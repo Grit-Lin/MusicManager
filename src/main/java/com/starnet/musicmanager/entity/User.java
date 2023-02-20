@@ -1,6 +1,7 @@
 package com.starnet.musicmanager.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -12,5 +13,6 @@ public class User implements Serializable {
     private String username;
     private String phoneNumber;
     private String email;
+    @JsonIgnore
     private String hashedPwd;
 }
